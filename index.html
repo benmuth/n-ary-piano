@@ -10,21 +10,14 @@
 </head>
 
 <body>
-  <button type="button">Start</button>
-  <div class="number"></div>
-  <!--
-  <script src='https://unpkg.com/tone@13.8.25/build/Tone.js'></script>
-  <script type="importmap">
-  {
-    "imports": {
-      "tone": "https://unpkg.com/tone@14.7.77/build/Tone.js"
-    }
-  }
-
-    -->
+  <div id="container">
+    <div id="number" data-val="0">0</div>
+    <span>
+      <button type="button" id="start">Start</button>
+      <button type="button" id="stop">Stop</button>
+    </span>
+  </div>
 
   <script src='https://unpkg.com/tone@14.7.77/build/Tone.js'></script>
-
-  </script>
   <script src='js/n-ary-piano.js' type='module'></script>
 </body>
