@@ -2,10 +2,12 @@
   margin-top: 50px;
   display: flex;
   flex-flow: column nowrap;
-  align-items: center;
+  align-items: flex-start;
   gap: 40px;
 }
 
-#number {
-  font-size: 20px;
+.piano {
+  font-size: 40px;
+  font-weight: normal;
+  font-family: "IBM Plex", monospace;
 }
