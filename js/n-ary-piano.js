@@ -67,7 +67,7 @@ var defaults = {
     notes: ["D4", "E4", "F4"],
     durations: [1.7, 1.5, 1.3],
   },
-}
+};
 
 class Piano {
   constructor(base) {
@@ -89,8 +89,12 @@ const stopButton = document.getElementById("stop");
 const addPianoButton = document.getElementById("add-piano");
 
 var prevPiano = document.getElementById("anchor");
+// var activePianos = document.getElementsByClassName("active piano");
+var prevActivePiano = document.getElementsByClassName("active piano")[0];
 
+// var keys = document.getElementsByClassName("piano-key");
 
+// var noteInputs = document.getElementsByTagName("input");
 // const base = 2;
 // const maxDigit = (base - 1).toString();
 // console.log(maxDigit);
@@ -101,8 +105,25 @@ var prevPiano = document.getElementById("anchor");
 // var durations = [1.7, 1.5, 1.3, 1.2, 0.9, 0.7, 0.6, 0.5, 0.5, 0.4];
 // var prevArr = [];
 
+// function initUI() {
+//   for (let key of keys) {
+//     key.addEventListener("click", (ev) => {
+//       assignToActiveNote(ev.target.dataset.pianoKey);
+//     });
+//   }
+
+//   for (let i = 0; i < noteInputs.length; i++) {
+//     noteInputs[i].value = activePiano.notes[i];
+//   }
+// }
+
+// function assignToActiveNote(pianoKey) {
+//   let activeNote = document.getElementsByClassName("active")[0];
+//   activeNote.dataset.pianoKey = pianoKey;
+// }
+
 addPianoButton.addEventListener("click", () => {
-  let base = prompt("Enter base: ", [2, 3, 4, 5, 6, 7, 8, 9, 10])
+  let base = prompt("Enter base: ", [2, 3, 4, 5, 6, 7, 8, 9, 10]);
   addPiano(base);
 });
 
@@ -116,13 +137,40 @@ function addPiano(base) {
   pianoDiv.dataset.val = 0;
   pianoDiv.obj = piano;
 
+  console.log("piano div obj", pianoDiv);
   const pianoNumbers = document.createTextNode(piano.padding);
 
   pianoDiv.appendChild(pianoNumbers);
 
+  const selectButton = document.createElement("button");
+
+  selectButton.textContent = "Select";
+
+  pianoDiv.addEventListener("click", (e) => {
+    console.log("clicked");
+    console.log("current target", e.currentTarget);
+    makeActivePiano(e.currentTarget);
+  });
+  pianoDiv.appendChild(selectButton);
+
   prevPiano.after(pianoDiv);
   prevPiano = pianoDiv;
   pianos = document.getElementsByClassName("piano");
+
+  // console.log(activePianos[0].classList);
+  // activePianos[0].classList.toggle("active");
+  // activePianos = document.getElementsByClassName("active piano");
+  makeActivePiano(pianoDiv);
+}
+
+function makeActivePiano(element) {
+  console.log("ap before: ", prevActivePiano);
+  console.log("making", element, "the active piano");
+  element.classList.add("active");
+  prevActivePiano.classList.remove("active");
+  // console.log("ap clist: ", activePianos[0].classList.contains("active"));
+  prevActivePiano = document.getElementsByClassName("active piano")[0];
+  console.log("ap after: ", prevActivePiano);
 }
 
 startButton.addEventListener("click", () => {
@@ -132,34 +180,44 @@ startButton.addEventListener("click", () => {
     },
   }).toDestination();
 
+  pianos = document.getElementsByClassName("piano");
+  console.log("pianos: ", pianos);
   Tone.Transport.bpm.value = 50;
   //play a note every eighth note starting from the first measure
   Tone.Transport.scheduleRepeat(
     function (time) {
       for (let piano of pianos) {
         let count = piano.dataset.val;
+        console.log("piano: ", piano);
         let countString = (+count).toString(piano.obj.base);
-
-        let pad = piano.obj.padding.substring(0, piano.obj.padding.length - countString.length);
+        let pad = piano.obj.padding.substring(
+          0,
+          piano.obj.padding.length - countString.length,
+        );
         let padString = pad + countString;
         let paddedArr = padString.split("");
         // console.log(paddedArr.length, paddedArr);
 
         for (let i = 0; i < paddedArr.length; i++) {
-          if (paddedArr[i] === piano.obj.maxDigit && piano.obj.prevArr[i] !== piano.obj.maxDigit) {
+          if (
+            paddedArr[i] === piano.obj.maxDigit &&
+            piano.obj.prevArr[i] !== piano.obj.maxDigit
+          ) {
             // play a chord
-            synth.triggerAttackRelease(piano.obj.notes[i], piano.obj.durations[i], time);
+            synth.triggerAttackRelease(
+              piano.obj.notes[i],
+              piano.obj.durations[i],
+              time,
+            );
           }
         }
 
         piano.obj.prevArr = paddedArr;
-        piano.innerHTML = padString;
-
+        piano.firstChild.textContent = padString;
         piano.dataset.val++;
         if (piano.dataset.val == piano.obj.max) {
           piano.dataset.val == 0;
         }
-
       }
     },
     "16n",
@@ -174,4 +232,5 @@ stopButton.addEventListener("click", () => {
 
 window.onload = () => {
   addPiano(2);
-}
+  document.getElementById("anchor").classList.remove("piano");
+};

@@ -11,3 +11,159 @@
   font-weight: normal;
   font-family: "IBM Plex", monospace;
 }
+
+/*
+  Input notes
+*/
+
+.notes {
+  margin: auto;
+  display: block;
+  position: relative;
+  text-align: center;
+  font-size: 24px;
+  margin-top: 50px;
+  margin-bottom: 40px;
+}
+
+.notes input {
+  border: none;
+  width: 55px;
+  font-size: inherit;
+  border-bottom: 4px solid #222;
+  outline: 0px;
+  text-align: center;
+  padding: 5px;
+}
+
+.notes input:focus {
+  border-bottom: 4px solid hotpink;
+}
+
+.piano.active {
+  border: 2px dashed red
+}
+
+/*
+  The Keyboard
+ */
+
+
+ul {
+  position: relative;
+  width: 625px;
+  margin: auto;
+  padding: 0px;
+  height: 90px;
+}
+
+li {
+  position: relative;
+  list-style: none;
+  float: left;
+  padding: 0;
+  margin: 0;
+}
+
+.piano-key {
+  transition: background 100ms ease;
+}
+
+ul .white {
+  border-bottom: 1px solid #ccc;
+  border-left: 1px solid #eee;
+  background: #fff;
+  height: 80px;
+  width: 12px;
+  z-index: 1;
+}
+
+.white:hover {
+  background: #eee;
+}
+
+.black {
+  margin: 0 -4px 0 -4px;
+  border: 1px solid #000;
+  background: black;
+  height: 50px;
+  width: 8px;
+  z-index: 2;
+}
+
+.black:hover {
+  background: #444;
+}
+
+.notes {
+  margin: auto;
+  display: block;
+  position: relative;
+  text-align: center;
+  font-size: 24px;
+  margin-top: 50px;
+  margin-bottom: 40px;
+}
+
+.notes input {
+  border: none;
+  width: 55px;
+  font-size: inherit;
+  border-bottom: 4px solid #222;
+  outline: 0px;
+  text-align: center;
+  padding: 5px;
+}
+
+.notes input:focus {
+  border-bottom: 4px solid hotpink;
+}
+
+.info h1 {
+  text-align: center;
+  color: #222;
+  letter-spacing: 2px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 0px;
+}
+
+.info span {
+  margin-left: 10px;
+  margin-right: 15px;
+  letter-spacing: -2px;
+}
+
+.details {
+  max-width: 700px;
+  padding: 30px;
+  margin: auto;
+  text-align: center;
+  font-size: 15px;
+}
+
+@media only screen and (max-width: 700px) {
+  .editor-container.open {
+    height: auto;
+  }
+
+  .notes input {
+    margin-bottom: 8px;
+  }
+
+  .info h1 {
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0px;
+  }
+
+  .notes {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  .details {
+    font-size: 10px;
+    padding: 10px;
+  }
+}
