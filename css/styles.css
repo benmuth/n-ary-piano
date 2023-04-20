@@ -16,7 +16,7 @@
   Input notes
 */
 
-.notes {
+#notes {
   margin: auto;
   display: block;
   position: relative;
@@ -26,7 +26,7 @@
   margin-bottom: 40px;
 }
 
-.notes input {
+#notes input {
   border: none;
   width: 55px;
   font-size: inherit;
@@ -36,7 +36,13 @@
   padding: 5px;
 }
 
-.notes input:focus {
+
+/*#notes input:focus {
+  border-bottom: 4px solid hotpink;
+}
+*/
+
+#notes input.selected {
   border-bottom: 4px solid hotpink;
 }
 
