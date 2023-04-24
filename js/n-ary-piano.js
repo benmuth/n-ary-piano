@@ -13,7 +13,8 @@
 // 9 - 3
 // 10 - 3
 
-var defaults = {
+// the default values for a new piano of a given base
+const defaults = {
   2: {
     padding: "0000000000",
     notes: ["D4", "E4", "F4", "G4", "A5", "C5", "D5", "E5", "F5", "G5"],
@@ -69,8 +70,11 @@ var defaults = {
   },
 };
 
+// holds all the data for a piano
 class Piano {
   constructor(base) {
+    base = base ?? 2;
+    console.log("new piano with base: ", base);
     this.base = base;
     this.maxDigit = (base - 1).toString();
     this.notes = defaults[base].notes;
@@ -81,35 +85,33 @@ class Piano {
   }
 }
 
-// var number = document.getElementById("number");
 var pianos = document.getElementsByClassName("piano");
 
 const startButton = document.getElementById("start");
 const stopButton = document.getElementById("stop");
 const addPianoButton = document.getElementById("add-piano");
 
+// new pianos are added after the previous piano
 var prevPiano = document.getElementById("anchor");
 var activePiano = document.getElementsByClassName("active piano")[0];
 
+// the note input element that is changed by clicking the keyboard
 var selectedNoteInput = document.getElementsByClassName("selected")[0];
-
-// var notes = ["D4", "E4", "F4", "G4", "A5", "C5", "D5", "E5", "F5", "G5"];
-// var durations = [1.7, 1.5, 1.3, 1.2, 0.9, 0.7, 0.6, 0.5, 0.5, 0.4];
 
 var keyboard = document.getElementById("piano-keyboard");
 
 var noteInputArea = document.getElementById("notes");
 
+// set up interactions for keyboard and note UI
 function initUI() {
   keyboard.addEventListener("click", (ev) => {
-    // console.log("clicked", ev.target.dataset.pianoKey);
     selectedNoteInput.value = ev.target.dataset.pianoKey;
     let selectedIndex = +selectedNoteInput.dataset.index;
 
     activePiano.obj.notes[selectedIndex] = ev.target.dataset.pianoKey;
 
     let nextIndex = selectedIndex + 1;
-    if (nextIndex >= activePiano.obj.notes.length) {
+    if (nextIndex >= activePiano.obj.notes.length) { // cycle notes
       nextIndex = nextIndex % activePiano.obj.notes.length;
     }
     console.log("next index:", nextIndex);
@@ -126,10 +128,8 @@ function initUI() {
   });
 }
 
+// highlight the given note element
 function selectNoteInput(noteElement) {
-  // console.log(selectedNoteInput);
-  // console.log(noteElement.target);
-  // console.log(noteElement.target.tagName);
   if (noteElement.tagName === "INPUT") {
     selectedNoteInput.classList.remove("selected");
     noteElement.classList.add("selected");
@@ -150,8 +150,10 @@ function addPiano(base) {
   const pianoDiv = document.createElement("div");
   pianoDiv.classList.add("piano");
   numPianos++;
-  pianoDiv.id = `p-${numPianos}`;
-  pianoDiv.dataset.val = 0;
+  // pianoDiv.id = `p-${numPianos}`;
+  pianoDiv.setAttribute("id", `p-${numPianos}`);
+  // pianoDiv.dataset.val = 0;
+  pianoDiv.setAttribute("data-val", "0");
   pianoDiv.obj = piano;
 
   const pianoNumbers = document.createTextNode(piano.padding);
@@ -165,6 +167,19 @@ function addPiano(base) {
   });
   pianoDiv.appendChild(selectButton);
 
+  const baseChangeInput = document.createElement("input");
+
+  baseChangeInput.setAttribute("type", "number");
+  baseChangeInput.setAttribute("id", `base-${numPianos}`);
+  baseChangeInput.setAttribute("name", "select-base");
+  baseChangeInput.setAttribute("min", "2");
+  baseChangeInput.setAttribute("max", "10");
+  baseChangeInput.addEventListener("input", (ev) => {
+    console.log(ev.target.value);
+    changeBase(ev.target.parentElement, ev.target.value);
+  });
+  pianoDiv.appendChild(baseChangeInput);
+
   prevPiano.after(pianoDiv);
   prevPiano = pianoDiv;
   pianos = document.getElementsByClassName("piano");
@@ -172,34 +187,59 @@ function addPiano(base) {
   makeActivePiano(pianoDiv);
 }
 
+// this.base = base;
+// this.maxDigit = (base - 1).toString();
+// this.notes = defaults[base].notes;
+// this.durations = defaults[base].durations;
+// this.max = Math.pow(base, defaults[base].padding.length) - 1;
+// this.prevArr = [];
+// this.padding = defaults[base].padding;
+
 function changeBase(piano, base) {
+  piano.dataset.val = 0;
+  piano.obj = new Piano(base);
+
+  console.log(piano);
+  console.log(piano.firstChild.nodeValue);
+  piano.firstChild.nodeValue = piano.obj.padding;
+  updateKeyboardUI();
 }
 
-function makeActivePiano(element) {
+function makeActivePiano(selectedPiano) {
   // console.log("ap before: ", activePiano);
-  if (activePiano === element) {
+  if (activePiano === selectedPiano) {
     // console.log("Already active element, doing nothing");
+    updateKeyboardUI();
     return;
   }
   // console.log("making", element, "the active piano");
-  element.classList.add("active");
+  selectedPiano.classList.add("active");
   // console.log("active piano notes: ", element.obj.notes);
-  let activeNotes = element.obj.notes;
+
+  activePiano.classList.remove("active");
+  // activePiano = document.getElementsByClassName("active piano")[0];
+  activePiano = selectedPiano;
+  // console.log("ap after: ", activePiano);
+  updateKeyboardUI();
+}
+
+function updateKeyboardUI() {
+  let activePianoNotes = activePiano.obj.notes;
 
   const noteContainer = document.getElementById("notes");
-  let noteInputs = noteContainer.children;
+  let notes = noteContainer.children;
 
-  for (let i = 0; i < noteInputs.length; i++) {
-    if (i < activeNotes.length) {
-      noteInputs[i].toggleAttribute("hidden", false);
-      noteInputs[i].value = activeNotes[i];
+  // change display of notes to match active piano
+  for (let i = 0; i < notes.length; i++) {
+    if (i < activePianoNotes.length) {
+      notes[i].toggleAttribute("hidden", false);
+      notes[i].value = activePianoNotes[i];
     } else {
-      noteInputs[i].toggleAttribute("hidden", true);
+      notes[i].toggleAttribute("hidden", true);
     }
   }
-  activePiano.classList.remove("active");
-  activePiano = document.getElementsByClassName("active piano")[0];
-  console.log("ap after: ", activePiano);
+
+  // change display of number
 }
 
 startButton.addEventListener("click", () => {
