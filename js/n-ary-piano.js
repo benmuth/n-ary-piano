@@ -74,6 +74,9 @@ const defaults = {
 class Piano {
   constructor(base) {
     base = base ?? 2;
+    if (base === "") {
+      base = 2;
+    }
     console.log("new piano with base: ", base);
     this.base = base;
     this.maxDigit = (base - 1).toString();
@@ -85,79 +88,85 @@ class Piano {
   }
 }
 
-var pianos = document.getElementsByClassName("piano");
+let uiEls = {
+  pianos: document.getElementsByClassName("piano"),
+  startButton: document.getElementById("start"),
 
-const startButton = document.getElementById("start");
-const stopButton = document.getElementById("stop");
-const addPianoButton = document.getElementById("add-piano");
+  stopButton: document.getElementById("stop"),
+  addPianoButton: document.getElementById("add-piano"),
 
-// new pianos are added after the previous piano
-var prevPiano = document.getElementById("anchor");
-var activePiano = document.getElementsByClassName("active piano")[0];
+  // new pianos are added after the previous piano
+  prevPiano: document.getElementById("anchor"),
+  activePiano: document.getElementsByClassName("active piano")[0],
 
-// the note input element that is changed by clicking the keyboard
-var selectedNoteInput = document.getElementsByClassName("selected")[0];
+  // the note input element that is changed by clicking the keyboard
+  selectedNoteInput: document.getElementsByClassName("selected")[0],
 
-var keyboard = document.getElementById("piano-keyboard");
+  keyboard: document.getElementById("piano-keyboard"),
 
-var noteInputArea = document.getElementById("notes");
+  noteInputArea: document.getElementById("notes"),
+};
 
 // set up interactions for keyboard and note UI
-function initUI() {
-  keyboard.addEventListener("click", (ev) => {
-    selectedNoteInput.value = ev.target.dataset.pianoKey;
-    let selectedIndex = +selectedNoteInput.dataset.index;
-
-    activePiano.obj.notes[selectedIndex] = ev.target.dataset.pianoKey;
-
-    let nextIndex = selectedIndex + 1;
-    if (nextIndex >= activePiano.obj.notes.length) { // cycle notes
-      nextIndex = nextIndex % activePiano.obj.notes.length;
+function bindUI() {
+  uiEls.keyboard.addEventListener("click", (ev) => {
+    if (ev.target.id === "piano-keyboard") {
+      return;
     }
-    console.log("next index:", nextIndex);
+
+    uiEls.selectedNoteInput.value = ev.target.dataset.pianoKey;
+    let selectedIndex = +uiEls.selectedNoteInput.dataset.index;
+    uiEls.activePiano.obj.notes[selectedIndex] = ev.target.dataset.pianoKey;
+    let nextIndex = getNextNoteIndex(selectedIndex);
+    // console.log("next index:", nextIndex);
     let nextNoteInput =
       document.querySelectorAll(`[data-index='${nextIndex}']`)[0];
-    console.log("next input area:", nextNoteInput);
+    // console.log("next input area:", nextNoteInput);
     selectNoteInput(nextNoteInput);
-    // let focusedNote = noteInputArea.querySelector(":focus");
-    // focusedNote.value = ev.target.dataset.pianoKey;
   });
 
-  noteInputArea.addEventListener("click", (ev) => {
+  uiEls.noteInputArea.addEventListener("click", (ev) => {
     selectNoteInput(ev.target);
   });
+}
+
+function getNextNoteIndex(currentNoteIndex) {
+  let nextIndex = currentNoteIndex + 1;
+  if (nextIndex >= uiEls.activePiano.obj.notes.length) { // cycle notes
+    nextIndex = nextIndex % uiEls.activePiano.obj.notes.length;
+  }
+  return nextIndex;
 }
 
 // highlight the given note element
 function selectNoteInput(noteElement) {
   if (noteElement.tagName === "INPUT") {
-    selectedNoteInput.classList.remove("selected");
+    uiEls.selectedNoteInput.classList.remove("selected");
     noteElement.classList.add("selected");
-    selectedNoteInput = noteElement;
+    uiEls.selectedNoteInput = noteElement;
   }
 }
 
-addPianoButton.addEventListener("click", () => {
+uiEls.addPianoButton.addEventListener("click", () => {
   let base = prompt("Enter base: ", [2, 3, 4, 5, 6, 7, 8, 9, 10]);
   addPiano(base);
 });
 
-var numPianos = 0;
 // adds a new piano with the given base to the page
 function addPiano(base) {
+  // remove initial dummy piano
+  document.getElementById("anchor").classList.remove("piano");
+
   let piano = new Piano(base);
 
   const pianoDiv = document.createElement("div");
   pianoDiv.classList.add("piano");
-  numPianos++;
-  // pianoDiv.id = `p-${numPianos}`;
-  pianoDiv.setAttribute("id", `p-${numPianos}`);
-  // pianoDiv.dataset.val = 0;
+
+  pianoDiv.setAttribute("id", `p-${uiEls.pianos.length}`);
   pianoDiv.setAttribute("data-val", "0");
   pianoDiv.obj = piano;
 
   const pianoNumbers = document.createTextNode(piano.padding);
-
   pianoDiv.appendChild(pianoNumbers);
 
   const selectButton = document.createElement("button");
@@ -168,9 +177,8 @@ function addPiano(base) {
   pianoDiv.appendChild(selectButton);
 
   const baseChangeInput = document.createElement("input");
-
   baseChangeInput.setAttribute("type", "number");
-  baseChangeInput.setAttribute("id", `base-${numPianos}`);
+  baseChangeInput.setAttribute("id", `base-${uiEls.pianos.length}`);
   baseChangeInput.setAttribute("name", "select-base");
   baseChangeInput.setAttribute("min", "2");
   baseChangeInput.setAttribute("max", "10");
@@ -180,20 +188,15 @@ function addPiano(base) {
   });
   pianoDiv.appendChild(baseChangeInput);
 
-  prevPiano.after(pianoDiv);
-  prevPiano = pianoDiv;
-  pianos = document.getElementsByClassName("piano");
+  console.log("prev: ", uiEls.prevPiano);
+  console.log("to add: ", pianoDiv);
+  uiEls.prevPiano.after(pianoDiv);
+  uiEls.prevPiano = pianoDiv;
+
+  uiEls.pianos = document.getElementsByClassName("piano");
 
   makeActivePiano(pianoDiv);
 }
-
-// this.base = base;
-// this.maxDigit = (base - 1).toString();
-// this.notes = defaults[base].notes;
-// this.durations = defaults[base].durations;
-// this.max = Math.pow(base, defaults[base].padding.length) - 1;
-// this.prevArr = [];
-// this.padding = defaults[base].padding;
 
 function changeBase(piano, base) {
   piano.dataset.val = 0;
@@ -206,25 +209,18 @@ function changeBase(piano, base) {
 }
 
 function makeActivePiano(selectedPiano) {
-  // console.log("ap before: ", activePiano);
-  if (activePiano === selectedPiano) {
-    // console.log("Already active element, doing nothing");
+  if (uiEls.activePiano === selectedPiano) {
     updateKeyboardUI();
     return;
   }
-  // console.log("making", element, "the active piano");
   selectedPiano.classList.add("active");
-  // console.log("active piano notes: ", element.obj.notes);
-
-  activePiano.classList.remove("active");
-  // activePiano = document.getElementsByClassName("active piano")[0];
-  activePiano = selectedPiano;
-  // console.log("ap after: ", activePiano);
+  uiEls.activePiano.classList.remove("active");
+  uiEls.activePiano = selectedPiano;
   updateKeyboardUI();
 }
 
 function updateKeyboardUI() {
-  let activePianoNotes = activePiano.obj.notes;
+  let activePianoNotes = uiEls.activePiano.obj.notes;
 
   const noteContainer = document.getElementById("notes");
   let notes = noteContainer.children;
@@ -238,69 +234,72 @@ function updateKeyboardUI() {
       notes[i].toggleAttribute("hidden", true);
     }
   }
-
-  // change display of number
 }
 
-startButton.addEventListener("click", () => {
+uiEls.startButton.addEventListener("click", () => {
   let synth = new Tone.PolySynth(Tone.Synth, {
     oscillator: {
       partials: [0, 2, 3, 4],
     },
   }).toDestination();
 
-  pianos = document.getElementsByClassName("piano");
-  console.log("pianos: ", pianos);
+  uiEls.pianos = document.getElementsByClassName("piano");
+  console.log("pianos: ", uiEls.pianos);
   Tone.Transport.bpm.value = 50;
   //play a note every eighth note starting from the first measure
   Tone.Transport.scheduleRepeat(
-    function (time) {
-      for (let piano of pianos) {
-        let count = piano.dataset.val;
-        console.log("piano: ", piano);
-        let countString = (+count).toString(piano.obj.base);
-        let pad = piano.obj.padding.substring(
-          0,
-          piano.obj.padding.length - countString.length,
-        );
-        let padString = pad + countString;
-        let paddedArr = padString.split("");
-        // console.log(paddedArr.length, paddedArr);
-
-        for (let i = 0; i < paddedArr.length; i++) {
-          if (
-            paddedArr[i] === piano.obj.maxDigit &&
-            piano.obj.prevArr[i] !== piano.obj.maxDigit
-          ) {
-            // play a chord
-            synth.triggerAttackRelease(
-              piano.obj.notes[i],
-              piano.obj.durations[i],
-              time,
-            );
-          }
-        }
-
-        piano.obj.prevArr = paddedArr;
-        piano.firstChild.textContent = padString;
-        piano.dataset.val++;
-        if (piano.dataset.val == piano.obj.max) {
-          piano.dataset.val == 0;
-        }
-      }
-    },
+    (time) => updateAndPlayPianos(time, synth),
     "16n",
     "1m",
   );
+  Tone.start();
   Tone.Transport.start();
 });
 
-stopButton.addEventListener("click", () => {
-  Tone.Transport.stop();
+function updateAndPlayPianos(time, synth) {
+  for (let piano of uiEls.pianos) {
+    let display = makePianoDisplayString(piano);
+    let displayArr = display.split("");
+
+    for (let i = 0; i < displayArr.length; i++) {
+      let shouldPlayNote = displayArr[i] === piano.obj.maxDigit &&
+        piano.obj.prevArr[i] !== piano.obj.maxDigit;
+      if (shouldPlayNote) {
+        synth.triggerAttackRelease(
+          piano.obj.notes[i],
+          piano.obj.durations[i],
+          time,
+        );
+      }
+    }
+
+    // update piano data
+    piano.firstChild.textContent = display;
+    piano.obj.prevArr = displayArr;
+    piano.dataset.val++;
+    if (piano.dataset.val == piano.obj.max) {
+      piano.dataset.val == 0;
+    }
+  }
+}
+
+function makePianoDisplayString(piano) {
+  let count = piano.dataset.val;
+  let countString = (+count).toString(piano.obj.base);
+  let zeroPadding = piano.obj.padding.substring(
+    0,
+    piano.obj.padding.length - countString.length,
+  );
+  return zeroPadding + countString;
+}
+
+uiEls.stopButton.addEventListener("click", () => {
+  // Tone.Transport.stop();
+  // Tone.Transport.pause();
+  Tone.Transport.toggle();
 });
 
 window.onload = () => {
   addPiano(2);
-  document.getElementById("anchor").classList.remove("piano");
-  initUI();
+  bindUI();
 };
