@@ -196,6 +196,7 @@ function addPiano(base) {
   uiEls.pianos = document.getElementsByClassName("piano");
 
   makeActivePiano(pianoDiv);
+  return pianoDiv;
 }
 
 function changeBase(piano, base) {
@@ -299,7 +300,53 @@ uiEls.stopButton.addEventListener("click", () => {
   Tone.Transport.toggle();
 });
 
+function setPianosInURL() {
+  let URLString = encodePianos();
+  history.replaceState({}, "", `?${URLString}`);
+}
+
+function encodePianos() {
+  let URLString = "";
+  for (let piano of uiEls.pianos) {
+    URLString += "id=" + piano.id + "&";
+    URLString += "base=" + piano.obj.base + "&";
+    URLString += "notes=" + piano.obj.notes.join("+");
+  }
+  console.log(URLString);
+  return URLString;
+}
+
+function getQueryString() {
+  return window.location.search.toString();
+}
+
+function decodePianosFromURL(queryString) {
+  if (isValidQueryString(queryString)) {
+    console.log("valid query string");
+  }
+}
+
+function isValidQueryString(queryString) {
+  console.log("queryString: ", queryString)
+  let re = queryString.match(/((id=p-[0-9])\&(base=([2-9]|10))\&(notes=([A-G]\^?[0-7]\+){2,9}([A-G]\^?[0-7]))\&$)/);
+  console.log("re: ", re)
+  if (re) {
+    console.log("valid query string");
+    return true
+  } else {
+    console.log("invalid query string");
+    return false
+  }
+}
+
 window.onload = () => {
   addPiano(2);
   bindUI();
+  let urlString = encodePianos();
+  decodePianosFromURL(urlString);
+
+  addPiano(8);
+  urlString = encodePianos();
+  decodePianosFromURL(urlString);
+  // decodePianosFromURL("A6");
 };
