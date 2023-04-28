@@ -75,6 +75,9 @@ li {
   transition: background 100ms ease;
 }
 
+ul {
+  overflow: visible;
+}
 ul .white {
   border-bottom: 1px solid #ccc;
   border-left: 1px solid #eee;

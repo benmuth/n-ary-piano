@@ -119,8 +119,9 @@ function bindUI() {
     uiEls.activePiano.obj.notes[selectedIndex] = ev.target.dataset.pianoKey;
     let nextIndex = getNextNoteIndex(selectedIndex);
     // console.log("next index:", nextIndex);
-    let nextNoteInput =
-      document.querySelectorAll(`[data-index='${nextIndex}']`)[0];
+    let nextNoteInput = document.querySelectorAll(
+      `[data-index='${nextIndex}']`
+    )[0];
     // console.log("next input area:", nextNoteInput);
     selectNoteInput(nextNoteInput);
   });
@@ -132,7 +133,8 @@ function bindUI() {
 
 function getNextNoteIndex(currentNoteIndex) {
   let nextIndex = currentNoteIndex + 1;
-  if (nextIndex >= uiEls.activePiano.obj.notes.length) { // cycle notes
+  if (nextIndex >= uiEls.activePiano.obj.notes.length) {
+    // cycle notes
     nextIndex = nextIndex % uiEls.activePiano.obj.notes.length;
   }
   return nextIndex;
@@ -144,6 +146,7 @@ function selectNoteInput(noteElement) {
     uiEls.selectedNoteInput.classList.remove("selected");
     noteElement.classList.add("selected");
     uiEls.selectedNoteInput = noteElement;
+    setPianosInURL();
   }
 }
 
@@ -196,6 +199,8 @@ function addPiano(base) {
   uiEls.pianos = document.getElementsByClassName("piano");
 
   makeActivePiano(pianoDiv);
+
+  setPianosInURL();
   return pianoDiv;
 }
 
@@ -207,6 +212,7 @@ function changeBase(piano, base) {
   console.log(piano.firstChild.nodeValue);
   piano.firstChild.nodeValue = piano.obj.padding;
   updateKeyboardUI();
+  setPianosInURL();
 }
 
 function makeActivePiano(selectedPiano) {
@@ -218,6 +224,7 @@ function makeActivePiano(selectedPiano) {
   uiEls.activePiano.classList.remove("active");
   uiEls.activePiano = selectedPiano;
   updateKeyboardUI();
+  // setPianosInURL();
 }
 
 function updateKeyboardUI() {
@@ -251,7 +258,7 @@ uiEls.startButton.addEventListener("click", () => {
   Tone.Transport.scheduleRepeat(
     (time) => updateAndPlayPianos(time, synth),
     "16n",
-    "1m",
+    "1m"
   );
   Tone.start();
   Tone.Transport.start();
@@ -263,13 +270,14 @@ function updateAndPlayPianos(time, synth) {
     let displayArr = display.split("");
 
     for (let i = 0; i < displayArr.length; i++) {
-      let shouldPlayNote = displayArr[i] === piano.obj.maxDigit &&
+      let shouldPlayNote =
+        displayArr[i] === piano.obj.maxDigit &&
         piano.obj.prevArr[i] !== piano.obj.maxDigit;
       if (shouldPlayNote) {
         synth.triggerAttackRelease(
           piano.obj.notes[i],
           piano.obj.durations[i],
-          time,
+          time
         );
       }
     }
@@ -289,15 +297,13 @@ function makePianoDisplayString(piano) {
   let countString = (+count).toString(piano.obj.base);
   let zeroPadding = piano.obj.padding.substring(
     0,
-    piano.obj.padding.length - countString.length,
+    piano.obj.padding.length - countString.length
   );
   return zeroPadding + countString;
 }
 
 uiEls.stopButton.addEventListener("click", () => {
-  // Tone.Transport.stop();
-  // Tone.Transport.pause();
-  Tone.Transport.toggle();
+  Tone.Transport.stop();
 });
 
 function setPianosInURL() {
@@ -308,9 +314,9 @@ function setPianosInURL() {
 function encodePianos() {
   let URLString = "";
   for (let piano of uiEls.pianos) {
-    URLString += "id=" + piano.id + "&";
     URLString += "base=" + piano.obj.base + "&";
-    URLString += "notes=" + piano.obj.notes.join("+");
+    URLString += "notes=" + piano.obj.notes.join("+").replace(/\#/g, "^");
+    URLString += "&";
   }
   console.log(URLString);
   return URLString;
@@ -321,32 +327,39 @@ function getQueryString() {
 }
 
 function decodePianosFromURL(queryString) {
-  if (isValidQueryString(queryString)) {
-    console.log("valid query string");
+  if (!isValidQueryString(queryString)) {
+    console.log("invalid query string: ", queryString);
+    console.log("defaulting to 1 piano with base 2");
+    addPiano(2);
+    return;
   }
+  console.log("valid query string: ", queryString);
+
+  let params = new URLSearchParams(queryString);
+  let entries = params.entries();
+  for (let property of entries) {
+    if (property[0] === "base") {
+      let pianoDiv = addPiano(property[1]);
+
+      let notes = entries.next().value[1];
+      pianoDiv.obj.notes = notes.replace(/\^/g, "#").split(" ");
+    }
+  }
+  updateKeyboardUI();
 }
 
 function isValidQueryString(queryString) {
-  console.log("queryString: ", queryString)
-  let re = queryString.match(/((id=p-[0-9])\&(base=([2-9]|10))\&(notes=([A-G]\^?[0-7]\+){2,9}([A-G]\^?[0-7]))\&$)/);
-  console.log("re: ", re)
-  if (re) {
-    console.log("valid query string");
-    return true
+  const rePattern =
+    /((base=([2-9]|10))\&(notes=([A-G]\^?[0-7]\+){2,9}([A-G]\^?[0-7]))\&)+/;
+
+  if (queryString.match(rePattern)) {
+    return true;
   } else {
-    console.log("invalid query string");
-    return false
+    return false;
   }
 }
 
 window.onload = () => {
-  addPiano(2);
+  decodePianosFromURL(getQueryString());
   bindUI();
-  let urlString = encodePianos();
-  decodePianosFromURL(urlString);
-
-  addPiano(8);
-  urlString = encodePianos();
-  decodePianosFromURL(urlString);
-  // decodePianosFromURL("A6");
 };
