@@ -1,15 +1,90 @@
 #container {
-  margin-top: 50px;
+  margin-top: 20px;
+  justify-content: flex-start;
   display: flex;
   flex-flow: column nowrap;
-  align-items: flex-start;
-  gap: 40px;
+  align-items: center;
+}
+
+body {
+  /* background-color: #e8eddf; */
+  background-color: mintcream;
+}
+
+
+.piano-numbers {
+  box-sizing: border-box;
+  font-size: 40px;
+  font-weight: normal;
+  font-family: "IBM Plex", monospace;
 }
 
 .piano {
   font-size: 40px;
   font-weight: normal;
   font-family: "IBM Plex", monospace;
+}
+
+.piano.active .piano-numbers {
+  border-left: 7px solid #f5cb5c;
+}
+
+.piano.active .select-button {
+  background-color: #f5cb5c;
+  border-top: #545677 4px solid;
+  border-left: 4px solid #545677;
+  /* position: inherit; */
+  left: 7px;
+}
+
+.select-button {
+  box-sizing: border-box;
+  position: relative;
+  bottom: 25px;
+  background-color: #545677;
+  border: none;
+  padding: 10px 10px;
+  cursor: grab;
+  transition: background 500ms ease;
+  border-top: #545677 4px solid;
+  border-left: 4px solid #545677;
+  
+  /* top: 20px; */
+  /* bottom: 20px; */
+}
+
+.base-input {
+  background-color: #cfdbd5;
+  box-sizing: border-box;
+  border: none;
+  border-bottom: 4px solid #545677;
+  outline: 0px;
+  text-align: center;
+  padding: 5px;
+  font-size: 24px;
+  width: 55px;
+}
+
+#start{
+  margin: auto;
+  display: block;
+  position: relative;
+  text-align: center;
+  font-size: 24px;
+  margin-top: 12px;
+  margin-bottom: 20px;
+  background-color: #545677;
+  color: #f5cb5c;
+  border: none;
+}
+
+#add-piano {
+  border: none;
+  font-family: monospace;
+  font-size: 20px;
+  background-color: #545677;
+  color: #f5cb5c;
+  border-radius: 5px;
 }
 
 /*
@@ -30,8 +105,7 @@
   border: none;
   width: 55px;
   font-size: inherit;
-  border-bottom: 4px solid #222;
-  outline: 0px;
+  border-bottom: 4px solid #545677;
   text-align: center;
   padding: 5px;
 }
@@ -43,12 +117,23 @@
 */
 
 #notes input.selected {
-  border-bottom: 4px solid hotpink;
+  border-bottom: 4px solid #f5cb5c;
+  /* outline: 2px solid #545677; */
 }
 
-.piano.active {
-  border: 2px dashed red
+/*
+#notes input.selected::after {
+  content: "";
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  right: -15px;
+  bottom: -15px;
+  background: #545677;
+  z-index: -1;
 }
+*/
+
 
 /*
   The Keyboard
@@ -57,7 +142,7 @@
 
 ul {
   position: relative;
-  width: 625px;
+  width: 750px;
   margin: auto;
   padding: 0px;
   height: 90px;
@@ -78,6 +163,7 @@ li {
 ul {
   overflow: visible;
 }
+
 ul .white {
   border-bottom: 1px solid #ccc;
   border-left: 1px solid #eee;
@@ -118,19 +204,19 @@ ul .white {
   border: none;
   width: 55px;
   font-size: inherit;
-  border-bottom: 4px solid #222;
+  border-bottom: 4px solid #545677;
   outline: 0px;
   text-align: center;
   padding: 5px;
 }
 
 .notes input:focus {
-  border-bottom: 4px solid hotpink;
+  border-bottom: 4px solid #f5cb5c;
 }
 
 .info h1 {
   text-align: center;
-  color: #222;
+  color: #545677;
   letter-spacing: 2px;
   font-size: 14px;
   cursor: pointer;

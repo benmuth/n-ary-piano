@@ -92,7 +92,7 @@ let uiEls = {
   pianos: document.getElementsByClassName("piano"),
   startButton: document.getElementById("start"),
 
-  stopButton: document.getElementById("stop"),
+  // stopButton: document.getElementById("stop"),
   addPianoButton: document.getElementById("add-piano"),
 
   // new pianos are added after the previous piano
@@ -169,15 +169,19 @@ function addPiano(base) {
   pianoDiv.setAttribute("data-val", "0");
   pianoDiv.obj = piano;
 
-  const pianoNumbers = document.createTextNode(piano.padding);
-  pianoDiv.appendChild(pianoNumbers);
-
   const selectButton = document.createElement("button");
-  selectButton.textContent = "Select";
+  // selectButton.textContent = "Select";
+  selectButton.classList.add("select-button");
   selectButton.addEventListener("click", (e) => {
     makeActivePiano(e.currentTarget.parentElement);
   });
   pianoDiv.appendChild(selectButton);
+
+  // const pianoNumbers = document.createTextNode(piano.padding);
+  const pianoNumbers = document.createElement("span");
+  pianoNumbers.textContent = piano.padding;
+  pianoNumbers.classList.add("piano-numbers");
+  pianoDiv.appendChild(pianoNumbers);
 
   const baseChangeInput = document.createElement("input");
   baseChangeInput.setAttribute("type", "number");
@@ -185,6 +189,7 @@ function addPiano(base) {
   baseChangeInput.setAttribute("name", "select-base");
   baseChangeInput.setAttribute("min", "2");
   baseChangeInput.setAttribute("max", "10");
+  baseChangeInput.classList.add("base-input");
   baseChangeInput.addEventListener("input", (ev) => {
     console.log(ev.target.value);
     changeBase(ev.target.parentElement, ev.target.value);
@@ -208,9 +213,17 @@ function changeBase(piano, base) {
   piano.dataset.val = 0;
   piano.obj = new Piano(base);
 
-  console.log(piano);
-  console.log(piano.firstChild.nodeValue);
-  piano.firstChild.nodeValue = piano.obj.padding;
+  // console.log(piano);
+  // console.log(piano.firstChild.nodeValue);
+
+  let pianoNumbers;
+  for (const child of piano.children) {
+    if (child.classList.contains("piano-numbers")) {
+      pianoNumbers = child;
+    }
+  }
+  console.log("new piano numbers: ", piano.obj.padding);
+  pianoNumbers.textContent = piano.obj.padding;
   updateKeyboardUI();
   setPianosInURL();
 }
@@ -283,7 +296,12 @@ function updateAndPlayPianos(time, synth) {
     }
 
     // update piano data
-    piano.firstChild.textContent = display;
+    for (const child of piano.children) {
+      if (child.classList.contains("piano-numbers")) {
+        child.textContent = display;
+      }
+    }
+    // piano.firstChild.textContent = display;
     piano.obj.prevArr = displayArr;
     piano.dataset.val++;
     if (piano.dataset.val == piano.obj.max) {
@@ -302,9 +320,9 @@ function makePianoDisplayString(piano) {
   return zeroPadding + countString;
 }
 
-uiEls.stopButton.addEventListener("click", () => {
-  Tone.Transport.stop();
-});
+// uiEls.stopButton.addEventListener("click", () => {
+//   Tone.Transport.stop();
+// });
 
 function setPianosInURL() {
   let URLString = encodePianos();
