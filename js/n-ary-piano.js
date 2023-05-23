@@ -90,8 +90,8 @@ class Piano {
     console.log("new piano with base: ", base);
     this.base = base;
     this.maxDigit = (base - 1).toString();
-    this.notes = defaults[base].notes;
-    this.durations = defaults[base].durations;
+    this.notes = defaults[base].notes.slice();
+    this.durations = defaults[base].durations.slice();
     this.max = Math.pow(base, defaults[base].padding.length) - 1;
     this.prevArr = [];
     this.padding = defaults[base].padding;
@@ -121,16 +121,19 @@ var playing = false;
 
 // set up interactions for keyboard and note UI
 function bindUI() {
+  // clicking on a key
   uiEls.keyboard.addEventListener("click", (ev) => {
     if (ev.target.id === "piano-keyboard") {
       return;
     }
 
-    uiEls.selectedNoteInput.value = ev.target.dataset.pianoKey;
-    let selectedIndex = +uiEls.selectedNoteInput.dataset.index;
-    uiEls.activePiano.obj.notes[selectedIndex] = ev.target.dataset.pianoKey;
-    let nextIndex = getNextNoteIndex(selectedIndex);
-    // console.log("next index:", nextIndex);
+    let clickedKey = ev.target.dataset.pianoKey; // the note value of the clicked key
+    let selectedNoteIndex = +uiEls.selectedNoteInput.dataset.index; // the index of the selected note input (0-9)
+    let nextIndex = getNextNoteIndex(selectedNoteIndex);
+
+    uiEls.selectedNoteInput.value = clickedKey;
+    uiEls.activePiano.obj.notes[selectedNoteIndex] = clickedKey;
+
     let nextNoteInput = document.querySelectorAll(
       `[data-index='${nextIndex}']`
     )[0];
@@ -138,6 +141,7 @@ function bindUI() {
     selectNoteInput(nextNoteInput);
   });
 
+  // clicking on a note input
   uiEls.noteInputArea.addEventListener("click", (ev) => {
     selectNoteInput(ev.target);
   });
@@ -209,6 +213,7 @@ function addPiano(base) {
 
   let piano = new Piano(base);
 
+  // create new piano div
   const pianoDiv = document.createElement("div");
   pianoDiv.classList.add("piano");
 
@@ -216,6 +221,7 @@ function addPiano(base) {
   pianoDiv.setAttribute("data-val", "0");
   pianoDiv.obj = piano;
 
+  // add select button to piano
   const selectButton = document.createElement("button");
   // selectButton.textContent = "Select";
   selectButton.classList.add("select-button");
@@ -224,12 +230,13 @@ function addPiano(base) {
   });
   pianoDiv.appendChild(selectButton);
 
-  // const pianoNumbers = document.createTextNode(piano.padding);
+  // add piano numbers to piano
   const pianoNumbers = document.createElement("span");
   pianoNumbers.textContent = piano.padding;
   pianoNumbers.classList.add("piano-numbers");
   pianoDiv.appendChild(pianoNumbers);
 
+  // add base change input to piano
   const baseChangeInput = document.createElement("input");
   baseChangeInput.setAttribute("type", "number");
   baseChangeInput.setAttribute("id", `base-${uiEls.pianos.length}`);
@@ -400,6 +407,7 @@ function isValidQueryString(queryString) {
 }
 
 window.onload = () => {
+  // Tone.Context().resume();
   decodePianosFromURL(getQueryString());
   bindUI();
 };
