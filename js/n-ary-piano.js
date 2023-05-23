@@ -1,4 +1,14 @@
 "use strict";
+
+// const { start } = require("tone");
+
+var playSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6" width="30" >
+ <path fill-rule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clip-rule="evenodd" />
+  </svg>`;
+var stopSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6" width="30">
+<path fill-rule="evenodd" d="M4.5 7.5a3 3 0 013-3h9a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9z" clip-rule="evenodd" />
+</svg>`;
+
 // there can be multiple "keyboards"
 // each keyboard has data: a radix, current count
 
@@ -107,6 +117,8 @@ let uiEls = {
   noteInputArea: document.getElementById("notes"),
 };
 
+var playing = false;
+
 // set up interactions for keyboard and note UI
 function bindUI() {
   uiEls.keyboard.addEventListener("click", (ev) => {
@@ -122,12 +134,52 @@ function bindUI() {
     let nextNoteInput = document.querySelectorAll(
       `[data-index='${nextIndex}']`
     )[0];
-    // console.log("next input area:", nextNoteInput);
+
     selectNoteInput(nextNoteInput);
   });
 
   uiEls.noteInputArea.addEventListener("click", (ev) => {
     selectNoteInput(ev.target);
+  });
+
+  // clicking on the start button
+  uiEls.startButton.addEventListener("click", () => {
+    let ctx = new AudioContext();
+    let toneCtx = new Tone.Context(ctx);
+    let synth = new Tone.PolySynth(Tone.Synth, {
+      oscillator: {
+        partials: [0, 2, 3, 4],
+      },
+    }).toDestination();
+
+    uiEls.pianos = document.getElementsByClassName("piano");
+    console.log("pianos: ", uiEls.pianos);
+    Tone.Transport.bpm.value = 50;
+    //play a note every eighth note starting from the first measure
+    Tone.Transport.scheduleRepeat(
+      (time) => updateAndPlayPianos(time, synth),
+      "16n",
+      "1m"
+    );
+
+    if (playing) {
+      Tone.Transport.stop();
+      // Tone.Transport.cancel();
+      playing = false;
+      uiEls.startButton.innerHTML = playSVG;
+    } else {
+      Tone.Transport.start("+0");
+      toneCtx.resume();
+      // Tone.start();
+      playing = true;
+      uiEls.startButton.innerHTML = stopSVG;
+    }
+  });
+
+  // clicking on the add piano button
+  uiEls.addPianoButton.addEventListener("click", () => {
+    let base = prompt("Enter base: ", [2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    addPiano(base);
   });
 }
 
@@ -149,11 +201,6 @@ function selectNoteInput(noteElement) {
     setPianosInURL();
   }
 }
-
-uiEls.addPianoButton.addEventListener("click", () => {
-  let base = prompt("Enter base: ", [2, 3, 4, 5, 6, 7, 8, 9, 10]);
-  addPiano(base);
-});
 
 // adds a new piano with the given base to the page
 function addPiano(base) {
@@ -237,7 +284,6 @@ function makeActivePiano(selectedPiano) {
   uiEls.activePiano.classList.remove("active");
   uiEls.activePiano = selectedPiano;
   updateKeyboardUI();
-  // setPianosInURL();
 }
 
 function updateKeyboardUI() {
@@ -256,26 +302,6 @@ function updateKeyboardUI() {
     }
   }
 }
-
-uiEls.startButton.addEventListener("click", () => {
-  let synth = new Tone.PolySynth(Tone.Synth, {
-    oscillator: {
-      partials: [0, 2, 3, 4],
-    },
-  }).toDestination();
-
-  uiEls.pianos = document.getElementsByClassName("piano");
-  console.log("pianos: ", uiEls.pianos);
-  Tone.Transport.bpm.value = 50;
-  //play a note every eighth note starting from the first measure
-  Tone.Transport.scheduleRepeat(
-    (time) => updateAndPlayPianos(time, synth),
-    "16n",
-    "1m"
-  );
-  Tone.start();
-  Tone.Transport.start();
-});
 
 function updateAndPlayPianos(time, synth) {
   for (let piano of uiEls.pianos) {
@@ -319,10 +345,6 @@ function makePianoDisplayString(piano) {
   );
   return zeroPadding + countString;
 }
-
-// uiEls.stopButton.addEventListener("click", () => {
-//   Tone.Transport.stop();
-// });
 
 function setPianosInURL() {
   let URLString = encodePianos();

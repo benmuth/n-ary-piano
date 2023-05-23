@@ -66,6 +66,7 @@ body {
 }
 
 #start{
+  font-family: serif;
   margin: auto;
   display: block;
   position: relative;
