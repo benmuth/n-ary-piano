@@ -140,6 +140,7 @@ function bindUI() {
     )[0];
 
     selectNoteInput(nextNoteInput);
+    updateKeyboardUI();
   });
 
   // clicking on a note input
@@ -220,6 +221,7 @@ function selectNoteInput(noteElement) {
     noteElement.classList.add("selected");
     uiEls.selectedNoteInput = noteElement;
     setPianosInURL();
+    updateKeyboardUI();
   }
 }
 
@@ -324,6 +326,25 @@ function updateKeyboardUI() {
     } else {
       notes[i].toggleAttribute("hidden", true);
     }
+  }
+
+  // highlight selected notes on keyboard
+  let keys = document.getElementById("piano-keyboard").children;
+  let keysToHighlight = [];
+  for (let i = 0; i < keys.length; i++) {
+    keys[i].classList.remove("highlight");
+    keys[i].classList.remove("selected");
+    for (let j = 0; j < activePianoNotes.length; j++) {
+      if (notes[j].value === keys[i].dataset.pianoKey) {
+        keysToHighlight.push(keys[i]);
+        if (notes[j].classList.contains("selected")) {
+          keys[i].classList.add("selected");
+        }
+      }
+    }
+  }
+  for (let i = 0; i < keysToHighlight.length; i++) {
+    keysToHighlight[i].classList.add("highlight");
   }
 }
 

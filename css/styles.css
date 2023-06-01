@@ -115,15 +115,16 @@ body {
 }
 
 
+#notes input.selected {
+  border-bottom: 4px solid #f5cb5c;
+  /* outline: 2px solid #545677; */
+}
+
 /*#notes input:focus {
   border-bottom: 4px solid hotpink;
 }
 */
 
-#notes input.selected {
-  border-bottom: 4px solid #f5cb5c;
-  /* outline: 2px solid #545677; */
-}
 
 /*
 #notes input.selected::after {
@@ -194,7 +195,15 @@ ul .white {
   background: #444;
 }
 
-.notes {
+ul .highlight {
+  border-bottom: #f5cb5c 5px solid;
+}
+
+ul .selected {
+  border-bottom: green 5px solid;
+}
+
+/* .notes {
   margin: auto;
   display: block;
   position: relative;
@@ -202,9 +211,9 @@ ul .white {
   font-size: 24px;
   margin-top: 50px;
   margin-bottom: 40px;
-}
+} */
 
-.notes input {
+/* .notes input {
   border: none;
   width: 55px;
   font-size: inherit;
@@ -212,12 +221,14 @@ ul .white {
   outline: 0px;
   text-align: center;
   padding: 5px;
-}
+} */
 
-.notes input:focus {
+/* .notes input:focus {
   border-bottom: 4px solid #f5cb5c;
-}
+} */
 
+
+/* 
 .info h1 {
   text-align: center;
   color: #545677;
@@ -265,4 +276,4 @@ ul .white {
     font-size: 10px;
     padding: 10px;
   }
-}
+} */
