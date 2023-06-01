@@ -9,7 +9,35 @@
     <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
   </head>
 
+  <button id="tonestart">start tone</button>
+  <button id="startbutton">start</button>
+
   <script>
     console.log("hello world");
+    tonebutton = document.getElementById("tonestart");
+    tonebutton.addEventListener("click", () => {
+      Tone.start();
+    });
+
+    // synth plays when you press start
+    let synth = new Tone.PolySynth(Tone.Synth, {
+      oscillator: {
+        partials: [0, 2, 3, 4],
+      },
+    }).toDestination();
+
+    Tone.Transport.scheduleRepeat(
+      (time) => {
+        synth.triggerAttackRelease(["C4", "E4", "A4"], "4n");
+      },
+      "8n",
+      "1m"
+    );
+
+    button = document.getElementById("startbutton");
+    button.addEventListener("click", () => {
+      //   Tone.start();
+      Tone.Transport.start();
+    });
   </script>
 </html>

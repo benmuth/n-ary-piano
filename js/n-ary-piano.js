@@ -150,12 +150,17 @@ function bindUI() {
   uiEls.startButton.addEventListener("click", () => {
     let ctx = new AudioContext();
     let toneCtx = new Tone.Context(ctx);
+    // let synth = new Tone.PolySynth(8, Tone.Synth, {
+    //   oscillator: {
+    //     partials: [0, 2, 3, 4],
+    //   },
+    // }).toMaster();
+
     let synth = new Tone.PolySynth(Tone.Synth, {
       oscillator: {
         partials: [0, 2, 3, 4],
       },
     }).toDestination();
-
     uiEls.pianos = document.getElementsByClassName("piano");
     console.log("pianos: ", uiEls.pianos);
     Tone.Transport.bpm.value = 50;
@@ -185,6 +190,9 @@ function bindUI() {
     let base = prompt("Enter base: ", [2, 3, 4, 5, 6, 7, 8, 9, 10]);
     addPiano(base);
   });
+
+  let unlockButton = document.getElementById("unlock");
+  unlockButton.addEventListener("click", () => Tone.start());
 }
 
 function getNextNoteIndex(currentNoteIndex) {
