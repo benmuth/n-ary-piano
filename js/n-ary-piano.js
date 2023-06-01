@@ -100,7 +100,7 @@ class Piano {
 
 let uiEls = {
   pianos: document.getElementsByClassName("piano"),
-  startButton: document.getElementById("start"),
+  playButton: document.getElementById("play"),
 
   // stopButton: document.getElementById("stop"),
   addPianoButton: document.getElementById("add-piano"),
@@ -117,6 +117,7 @@ let uiEls = {
   noteInputArea: document.getElementById("notes"),
 };
 
+var played = false;
 var playing = false;
 
 // set up interactions for keyboard and note UI
@@ -147,15 +148,43 @@ function bindUI() {
   });
 
   // clicking on the start button
-  uiEls.startButton.addEventListener("click", () => {
-    let ctx = new AudioContext();
-    let toneCtx = new Tone.Context(ctx);
+  uiEls.playButton.addEventListener("click", () => {
+    // let ctx = new AudioContext();
+    // let toneCtx = new Tone.Context(ctx);
     // let synth = new Tone.PolySynth(8, Tone.Synth, {
     //   oscillator: {
     //     partials: [0, 2, 3, 4],
     //   },
     // }).toMaster();
+    if (!played) {
+      Tone.Transport.start();
+      uiEls.playButton.innerHTML = stopSVG;
+      playing = true;
+      played = true;
+      return;
+    }
 
+    Tone.Transport.toggle();
+
+    if (playing) {
+      // Tone.Transport.cancel();
+      playing = false;
+      uiEls.playButton.innerHTML = playSVG;
+    } else {
+      // toneCtx.resume();
+      playing = true;
+      uiEls.playButton.innerHTML = stopSVG;
+    }
+  });
+
+  // clicking on the add piano button
+  uiEls.addPianoButton.addEventListener("click", () => {
+    let base = prompt("Enter base: ", [2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    addPiano(base);
+  });
+
+  let initButton = document.getElementById("init");
+  initButton.addEventListener("click", () => {
     let synth = new Tone.PolySynth(Tone.Synth, {
       oscillator: {
         partials: [0, 2, 3, 4],
@@ -170,29 +199,9 @@ function bindUI() {
       "16n",
       "1m"
     );
-
-    if (playing) {
-      Tone.Transport.stop();
-      // Tone.Transport.cancel();
-      playing = false;
-      uiEls.startButton.innerHTML = playSVG;
-    } else {
-      Tone.Transport.start("+0");
-      toneCtx.resume();
-      // Tone.start();
-      playing = true;
-      uiEls.startButton.innerHTML = stopSVG;
-    }
+    // synth = Tone.start();
+    Tone.start();
   });
-
-  // clicking on the add piano button
-  uiEls.addPianoButton.addEventListener("click", () => {
-    let base = prompt("Enter base: ", [2, 3, 4, 5, 6, 7, 8, 9, 10]);
-    addPiano(base);
-  });
-
-  let unlockButton = document.getElementById("unlock");
-  unlockButton.addEventListener("click", () => Tone.start());
 }
 
 function getNextNoteIndex(currentNoteIndex) {
