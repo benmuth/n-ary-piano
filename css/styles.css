@@ -114,9 +114,8 @@ body {
   padding: 5px;
 }
 
-
 #notes input.selected {
-  border-bottom: 4px solid #f5cb5c;
+  border-bottom: 4px solid #9b1f30;
   /* outline: 2px solid #545677; */
 }
 
@@ -200,7 +199,11 @@ ul .highlight {
 }
 
 ul .selected {
-  border-bottom: green 5px solid;
+  border-bottom: #9b1f30 5px solid;
+}
+
+ul .playing {
+  border-color: aqua;
 }
 
 /* .notes {

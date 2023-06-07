@@ -122,6 +122,11 @@ var playing = false;
 
 // set up interactions for keyboard and note UI
 function bindUI() {
+  let synth = new Tone.PolySynth(Tone.Synth, {
+    oscillator: {
+      partials: [0, 2, 3, 4],
+    },
+  }).toDestination();
   // clicking on a key
   uiEls.keyboard.addEventListener("click", (ev) => {
     if (ev.target.id === "piano-keyboard") {
@@ -129,6 +134,7 @@ function bindUI() {
     }
 
     let clickedKey = ev.target.dataset.pianoKey; // the note value of the clicked key
+    synth.triggerAttackRelease(clickedKey, 0.4);
     let selectedNoteIndex = +uiEls.selectedNoteInput.dataset.index; // the index of the selected note input (0-9)
     let nextIndex = getNextNoteIndex(selectedNoteIndex);
 
@@ -193,7 +199,7 @@ function bindUI() {
     }).toDestination();
     uiEls.pianos = document.getElementsByClassName("piano");
     console.log("pianos: ", uiEls.pianos);
-    Tone.Transport.bpm.value = 50;
+    Tone.Transport.bpm.value = 80;
     //play a note every eighth note starting from the first measure
     Tone.Transport.scheduleRepeat(
       (time) => updateAndPlayPianos(time, synth),
@@ -332,6 +338,9 @@ function updateKeyboardUI() {
   let keys = document.getElementById("piano-keyboard").children;
   let keysToHighlight = [];
   for (let i = 0; i < keys.length; i++) {
+    // remove playing notes from previous piano
+    keys[i].classList.remove("playing");
+    // pick selected keys
     keys[i].classList.remove("highlight");
     keys[i].classList.remove("selected");
     for (let j = 0; j < activePianoNotes.length; j++) {
@@ -363,6 +372,13 @@ function updateAndPlayPianos(time, synth) {
           piano.obj.durations[i],
           time
         );
+        for (let key of uiEls.keyboard.children) {
+          if (key.dataset.pianoKey == uiEls.activePiano.obj.notes[i]) {
+            key.classList.add("playing");
+          } else {
+            key.classList.remove("playing");
+          }
+        }
       }
     }
 
