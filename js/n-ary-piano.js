@@ -392,7 +392,7 @@ function updateAndPlayPianos(time, synth) {
     piano.obj.prevArr = displayArr;
     piano.dataset.val++;
     if (piano.dataset.val == piano.obj.max) {
-      piano.dataset.val == 0;
+      piano.dataset.val = 0;
     }
   }
 }
