@@ -56,6 +56,13 @@ body {
   /* bottom: 20px; */
 }
 
+.remove-button {
+  background-color: #9b1f30;
+  border: 4px solid #9b1f30;
+  box-sizing: border-box;
+  padding: 10px;
+}
+
 .base-input {
   background-color: #cfdbd5;
   box-sizing: border-box;
