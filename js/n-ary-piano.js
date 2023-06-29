@@ -129,6 +129,7 @@ function bindUI() {
   }).toDestination();
   // clicking on a key
   uiState.keyboard.addEventListener("click", (ev) => {
+    console.log(ev.target);
     if (ev.target.id === "piano-keyboard") {
       return;
     }
