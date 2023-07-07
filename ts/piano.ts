@@ -30,7 +30,13 @@ var stopSVG =
 // 10 - 3
 
 // the default values for a new piano of a given base
-const defaults = {
+interface pianoDefaults {
+  padding: string;
+  notes: string[];
+  durations: number[];
+}
+
+const defaults: {[key: number]: pianoDefaults} = {
   2: {
     padding: "0000000000",
     notes: ["D4", "E4", "F4", "G4", "A5", "C5", "D5", "E5", "F5", "G5"],
@@ -412,8 +418,8 @@ function updateKeyboardUI() {
     if (keyboard) {
       let keys = keyboard.children;
       let keysToHighlight: HTMLElement[] = [];
-      for (let i = 0; i < keys.length; i++) {
-        let key = keys[i] as HTMLElement;
+        for (let keyElement of keys) {
+        let key = keyElement as HTMLElement;
         // remove playing notes from previous piano
         key.classList.remove("playing");
         // pick selected keys
@@ -428,8 +434,8 @@ function updateKeyboardUI() {
           }
         }
       }
-      for (let i = 0; i < keysToHighlight.length; i++) {
-        keysToHighlight[i].classList.add("highlight");
+      for (let key of keysToHighlight) {
+        key.classList.add("highlight");
       }
     }
   }
@@ -464,6 +470,7 @@ function updateAndPlayPianos(time: number, synth: Tone.PolySynth) {
     }
 
     // update piano data
+
     for (const child of piano.children) {
       if (child.classList.contains("piano-numbers")) {
         child.textContent = display;
@@ -526,8 +533,7 @@ function decodePianosFromURL(queryString: string) {
   }
   console.log("valid query string: ", queryString);
 
-  let params = new URLSearchParams(queryString);
-  let entries = params.entries();
+  let entries = new URLSearchParams(queryString).entries();
   for (let property of entries) {
     if (property[0] === "base") {
       let pianoDiv = addPiano(parseInt(property[1], 10));

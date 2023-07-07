@@ -5,19 +5,6 @@ var Tone = require("tone");
 // const { start } = require("tone");
 var playSVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\" class=\"w-6 h-6\" width=\"30\" >\n <path fill-rule=\"evenodd\" d=\"M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z\" clip-rule=\"evenodd\" />\n  </svg>";
 var stopSVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\" class=\"w-6 h-6\" width=\"30\">\n<path fill-rule=\"evenodd\" d=\"M4.5 7.5a3 3 0 013-3h9a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9z\" clip-rule=\"evenodd\" />\n</svg>";
-// there can be multiple "keyboards"
-// each keyboard has data: a radix, current count
-// digits for different bases:
-// 2 - 10
-// 3 - 6
-// 4 - 5
-// 5 - 4
-// 6 - 4
-// 7 - 3
-// 8 - 3
-// 9 - 3
-// 10 - 3
-// the default values for a new piano of a given base
 var defaults = {
     2: {
         padding: "0000000000",
@@ -274,8 +261,9 @@ function changeBase(piano, base) {
     // console.log(piano);
     // console.log(piano.firstChild.nodeValue);
     var pianoChildren = piano.children;
-    for (var _i = 0, pianoChildren_1 = pianoChildren; _i < pianoChildren_1.length; _i++) {
-        var child = pianoChildren_1[_i];
+    // for (const child of pianoChildren) {
+    for (var i = 0; i < pianoChildren.length; i++) {
+        var child = pianoChildren[i];
         if (child.classList.contains("piano-numbers")) {
             child.textContent = piano.piano.padding;
             console.log("new piano numbers: ", piano.piano.padding);
@@ -348,20 +336,23 @@ function updateKeyboardUI() {
     }
 }
 function updateAndPlayPianos(time, synth) {
-    for (var _i = 0, _a = uiState.pianos; _i < _a.length; _i++) {
-        var piano = _a[_i];
+    // for (let piano of uiState.pianos) {
+    for (var i = 0; i < uiState.pianos.length; i++) {
+        var piano = uiState.pianos[i];
         uiState.pianos = document.getElementsByClassName("piano");
         var display = makePianoDisplayString(piano);
         var displayArr = display.split("");
-        for (var i = 0; i < displayArr.length; i++) {
-            var shouldPlayNote = displayArr[i] === piano.piano.maxDigit &&
-                piano.piano.previousArray[i] !== piano.piano.maxDigit;
+        for (var i_1 = 0; i_1 < displayArr.length; i_1++) {
+            var shouldPlayNote = displayArr[i_1] === piano.piano.maxDigit &&
+                piano.piano.previousArray[i_1] !== piano.piano.maxDigit;
             if (shouldPlayNote) {
-                synth.triggerAttackRelease(piano.piano.notes[i], piano.piano.durations[i], time);
+                synth.triggerAttackRelease(piano.piano.notes[i_1], piano.piano.durations[i_1], time);
                 var keys = uiState.keyboard.children;
-                for (var _b = 0, keys_1 = keys; _b < keys_1.length; _b++) {
-                    var key = keys_1[_b];
-                    if (key.dataset.pianoKey == uiState.activePiano.piano.notes[i]) {
+                for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
+                    var key = keys_1[_i];
+                    // for (let i = 0; i < keys.length; i++) {
+                    //   let key = keys[i];
+                    if (key.dataset.pianoKey == uiState.activePiano.piano.notes[i_1]) {
                         key.classList.add("playing");
                     }
                     else {
@@ -371,8 +362,10 @@ function updateAndPlayPianos(time, synth) {
             }
         }
         // update piano data
-        for (var _c = 0, _d = piano.children; _c < _d.length; _c++) {
-            var child = _d[_c];
+        for (var _a = 0, _b = piano.children; _a < _b.length; _a++) {
+            var child = _b[_a];
+            // for (let i = 0; i < piano.children.length; i++) {
+            //   let child = piano.children[i];
             if (child.classList.contains("piano-numbers")) {
                 child.textContent = display;
             }
@@ -407,6 +400,8 @@ function encodePianos() {
     var URLString = "";
     for (var _i = 0, _a = uiState.pianos; _i < _a.length; _i++) {
         var piano = _a[_i];
+        // for (let i = 0; i < uiState.pianos.length; i++) {
+        //   let piano = uiState.pianos[i];
         URLString += "base=" + piano.piano.base + "&";
         URLString += "notes=" + piano.piano.notes.join("+").replace(/\#/g, "^");
         URLString += "&";
@@ -425,8 +420,7 @@ function decodePianosFromURL(queryString) {
         return;
     }
     console.log("valid query string: ", queryString);
-    var params = new URLSearchParams(queryString);
-    var entries = params.entries();
+    var entries = new URLSearchParams(queryString).entries();
     for (var _i = 0, entries_1 = entries; _i < entries_1.length; _i++) {
         var property = entries_1[_i];
         if (property[0] === "base") {

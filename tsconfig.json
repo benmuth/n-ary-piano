@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "outDir": "./built",
+    "allowJs": true,
+    "target": "es6",
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": false,
+    "noImplicitAny": true,
+    "module": "ES2015",
+    "moduleResolution": "Node"
+  },
+  "include": ["./ts/**/*", "Tone/**/*.ts"] 
+}
